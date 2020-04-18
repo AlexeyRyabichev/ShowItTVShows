@@ -7,7 +7,33 @@ import (
 )
 
 func (rt *Router) GetTVShow(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
+	login := r.Header.Get("X-Login")
+	showID := r.Header.Get("X-TVShowId")
+
+	show := GetWatchlist(login)[showID]
+
+	resp := TVShow{
+		TVShowID: showID,
+		Seen:     show.Seen,
+		Unseen:   show.Unseen,
+		Seasons:  show.Seasons,
+	}
+
+	js, err := json.Marshal(&resp)
+	if err != nil {
+		log.Printf("ERR\tcannot parse TV show to json, %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if bytes, err := w.Write(js); err != nil {
+		log.Printf("ERR\t%v", err)
+		http.Error(w, "ERR\tcannot write json to response: "+err.Error(), http.StatusInternalServerError)
+		return
+	} else {
+		log.Printf("RESP\tGET TVSHOW\twritten %d bytes in response", bytes)
+	}
 }
 
 func (rt *Router) PostTVShow(w http.ResponseWriter, r *http.Request) {
