@@ -45,18 +45,6 @@ func NewRouter(cfg ShowItGate.NodeCfg) *Router {
 			HandlerFunc: router.DeleteTVShow,
 		},
 		{
-			Name: "Add season to watchlist",
-			Method: "POST",
-			Pattern: "/v1/tvshow/season",
-			HandlerFunc: router.PostSeason,
-		},
-		{
-			Name: "Delete season from watchlist",
-			Method: "DELETE",
-			Pattern: "/v1/tvshow/season",
-			HandlerFunc: router.DeleteSeason,
-		},
-		{
 			Name: "Add episode to watchlist",
 			Method: "POST",
 			Pattern: "/v1/tvshow/series",

@@ -116,14 +116,6 @@ func (rt *Router) DeleteTVShow(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (rt *Router) PostSeason(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-}
-
-func (rt *Router) DeleteSeason(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-}
-
 func (rt *Router) PostSeries(w http.ResponseWriter, r *http.Request) {
 	type JsonReq struct {
 		Login    string   `json:"login"`
