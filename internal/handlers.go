@@ -136,7 +136,7 @@ func (rt *Router) PostSeries(w http.ResponseWriter, r *http.Request) {
 		watchlist[req.TVShowId] = &TVShow{
 			TVShowID: req.TVShowId,
 			Seen:     false,
-			Unseen:   false,
+			Unseen:   true,
 			Series:   []Episode{},
 		}
 	}
@@ -151,6 +151,7 @@ func (rt *Router) PostSeries(w http.ResponseWriter, r *http.Request) {
 
 	watchlist[req.TVShowId] = Local2TVShow(*local)
 
+	watchlist[req.TVShowId].Unseen = true
 	if UpdateWatchlist(req.Login, &watchlist) != true {
 		log.Printf("RESP\tPOST EPISODE\tcannot update watchlist in db")
 		w.WriteHeader(http.StatusInternalServerError)
