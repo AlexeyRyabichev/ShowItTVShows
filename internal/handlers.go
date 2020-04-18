@@ -126,10 +126,10 @@ func (rt *Router) DeleteSeason(w http.ResponseWriter, r *http.Request) {
 
 func (rt *Router) PostSeries(w http.ResponseWriter, r *http.Request) {
 	type JsonReq struct {
-		Login    string `json:"login"`
-		Password string `json:"password"`
-		TVShowId string `json:"tv_show_id"`
-		SeriesId string `json:"series_id"`
+		Login    string   `json:"login"`
+		Password string   `json:"password"`
+		TVShowId string   `json:"tv_show_id"`
+		SeriesId []string `json:"series_id"`
 	}
 	var req JsonReq
 
@@ -150,9 +150,11 @@ func (rt *Router) PostSeries(w http.ResponseWriter, r *http.Request) {
 	}
 
 	local := TVShow2Local(watchlist[req.TVShowId])
-	local.Episodes[req.SeriesId] = &Episode{
-		SeriesID: req.SeriesId,
-		Seen:     true,
+	for _, episodeId := range req.SeriesId {
+		local.Episodes[episodeId] = &Episode{
+			SeriesID: episodeId,
+			Seen:     true,
+		}
 	}
 
 	watchlist[req.TVShowId] = Local2TVShow(*local)
