@@ -24,18 +24,51 @@ type TVShow struct {
 	TVShowID string    `json:"tv_show_id"`
 	Seen     bool      `json:"seen"`
 	Unseen   bool      `json:"unseen"`
-	Seasons  []Seasons `json:"seasons"`
+	Series   []Episode `json:"series"`
 }
 
-type Seasons struct {
-	Season int      `json:"season"`
-	Seen   bool     `json:"seen"`
-	Series []Series `json:"series"`
-}
-
-type Series struct {
+type Episode struct {
 	SeriesID string `json:"series_id"`
 	Seen     bool   `json:"seen"`
+}
+
+type TVShowLocal struct {
+	TVShowID string `json:"tv_show_id"`
+	Seen     bool
+	Unseen   bool
+	Episodes map[string]*Episode
+}
+
+func TVShow2Local(show *TVShow) *TVShowLocal {
+	local := TVShowLocal{
+		TVShowID: show.TVShowID,
+		Seen:     show.Seen,
+		Unseen:   show.Unseen,
+		Episodes: make(map[string]*Episode),
+	}
+
+	for _, episode := range show.Series {
+		if local.Episodes[episode.SeriesID] == nil {
+			local.Episodes[episode.SeriesID] = &episode
+		}
+	}
+
+	return &local
+}
+
+func Local2TVShow(local TVShowLocal) *TVShow {
+	show := TVShow{
+		TVShowID: local.TVShowID,
+		Seen:     local.Seen,
+		Unseen:   local.Unseen,
+		Series:   []Episode{},
+	}
+
+	for _, episode := range local.Episodes {
+		show.Series = append(show.Series, *episode)
+	}
+
+	return &show
 }
 
 func DB2Watchlist(db *WatchlistDB) Watchlist {

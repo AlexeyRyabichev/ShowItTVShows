@@ -18,7 +18,7 @@ func (rt *Router) GetTVShow(w http.ResponseWriter, r *http.Request) {
 			TVShowID: showID,
 			Seen:     false,
 			Unseen:   false,
-			Seasons:  nil,
+			Series:   []Episode{},
 		}
 	} else {
 		show = showTmp
@@ -28,7 +28,7 @@ func (rt *Router) GetTVShow(w http.ResponseWriter, r *http.Request) {
 		TVShowID: showID,
 		Seen:     show.Seen,
 		Unseen:   show.Unseen,
-		Seasons:  show.Seasons,
+		Series:   show.Series,
 	}
 
 	js, err := json.Marshal(&resp)
@@ -70,7 +70,7 @@ func (rt *Router) PostTVShow(w http.ResponseWriter, r *http.Request) {
 			TVShowID: jsonReq.TVShowId,
 			Seen:     false,
 			Unseen:   false,
-			Seasons:  nil,
+			Series:   []Episode{},
 		}
 	}
 
@@ -100,7 +100,7 @@ func (rt *Router) DeleteTVShow(w http.ResponseWriter, r *http.Request) {
 	show := watchlist[showID]
 
 	if seen {
-		show.Seasons = nil
+		show.Series = nil
 		show.Seen = false
 	}
 	if unseen {
@@ -125,6 +125,46 @@ func (rt *Router) DeleteSeason(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rt *Router) PostSeries(w http.ResponseWriter, r *http.Request) {
+	type JsonReq struct {
+		Login    string   `json:"login"`
+		Password string   `json:"password"`
+		TVShowId string   `json:"tv_show_id"`
+		SeriesId []string `json:"series_id"`
+	}
+	var req JsonReq
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Printf("ERR\t%v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	watchlist := GetWatchlist(req.Login)
+	if watchlist[req.TVShowId] == nil {
+		watchlist[req.TVShowId] = &TVShow{
+			TVShowID: req.TVShowId,
+			Seen:     false,
+			Unseen:   false,
+			Series:   []Episode{},
+		}
+	}
+
+	local := TVShow2Local(watchlist[req.TVShowId])
+	for _, episodeId := range req.SeriesId {
+		local.Episodes[episodeId] = &Episode{
+			SeriesID: episodeId,
+			Seen:     true,
+		}
+	}
+
+	watchlist[req.TVShowId] = Local2TVShow(*local)
+
+	if UpdateWatchlist(req.Login, &watchlist) != true {
+		log.Printf("RESP\tPOST EPISODE\tcannot update watchlist in db")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
 }
 
