@@ -94,6 +94,8 @@ func (rt *Router) initRouter() {
 		)
 		w.WriteHeader(http.StatusNotFound)
 	})
+
+	rt.Router.Use(mux.CORSMethodMiddleware(rt.Router))
 }
 
 func (rt *Router) addRoute(route Route) {
@@ -106,4 +108,10 @@ func (rt *Router) addRoute(route Route) {
 		Path(route.Pattern).
 		Name(route.Name).
 		Handler(handler)
+
+	rt.Router.HandleFunc(route.Pattern, func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+	}).Methods(http.MethodOptions)
 }

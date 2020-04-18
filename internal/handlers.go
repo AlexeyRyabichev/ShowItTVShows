@@ -11,7 +11,18 @@ func (rt *Router) GetTVShow(w http.ResponseWriter, r *http.Request) {
 	login := r.Header.Get("X-Login")
 	showID := r.Header.Get("X-TVShowId")
 
-	show := GetWatchlist(login)[showID]
+	showTmp := GetWatchlist(login)[showID]
+	var show *TVShow
+	if showTmp == nil || showTmp.TVShowID == "" {
+		show = &TVShow{
+			TVShowID: showID,
+			Seen:     false,
+			Unseen:   false,
+			Seasons:  nil,
+		}
+	} else {
+		show = showTmp
+	}
 
 	resp := TVShow{
 		TVShowID: showID,
@@ -97,7 +108,7 @@ func (rt *Router) DeleteTVShow(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if UpdateWatchlist(login, &watchlist) != true {
-		log.Printf("RESP\tPOST SHOW\tcannot update watchlist in db")
+		log.Printf("RESP\tDELETE SHOW\tcannot update watchlist in db")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
