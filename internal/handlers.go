@@ -100,7 +100,6 @@ func (rt *Router) DeleteTVShow(w http.ResponseWriter, r *http.Request) {
 	show := watchlist[showID]
 
 	if seen {
-		show.Series = nil
 		show.Seen = false
 	}
 	if unseen {
