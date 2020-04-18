@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func (rt *Router) GetTVShow(w http.ResponseWriter, r *http.Request) {
@@ -79,6 +80,28 @@ func (rt *Router) PostTVShow(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rt *Router) DeleteTVShow(w http.ResponseWriter, r *http.Request) {
+	login := r.Header.Get("X-Login")
+	showID := r.Header.Get("X-TVShowId")
+	seen, _ := strconv.ParseBool(r.Header.Get("X-Seen"))
+	unseen, _ := strconv.ParseBool(r.Header.Get("X-Unseen"))
+
+	watchlist := GetWatchlist(login)
+	show := watchlist[showID]
+
+	if seen {
+		show.Seasons = nil
+		show.Seen = false
+	}
+	if unseen {
+		show.Unseen = false
+	}
+
+	if UpdateWatchlist(login, &watchlist) != true {
+		log.Printf("RESP\tPOST SHOW\tcannot update watchlist in db")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
 }
 
