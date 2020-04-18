@@ -62,6 +62,42 @@ func NewRouter(cfg ShowItGate.NodeCfg) *Router {
 			Pattern: "/v1/tvshow/watchlist",
 			HandlerFunc: router.GetWatchlist,
 		},
+		{
+			Name: "Get TV Show info",
+			Method: "GET",
+			Pattern: "/v2/tvshow/",
+			HandlerFunc: router.GetTVShow,
+		},
+		{
+			Name: "Update TV Show info in watchlist",
+			Method: "POST",
+			Pattern: "/v2/tvshow/",
+			HandlerFunc: router.PostTVShow,
+		},
+		{
+			Name: "Delete TV Show from watchlist",
+			Method: "DELETE",
+			Pattern: "/v2/tvshow/",
+			HandlerFunc: router.DeleteTVShow,
+		},
+		{
+			Name: "Add episode to watchlist",
+			Method: "POST",
+			Pattern: "/v2/tvshow/series",
+			HandlerFunc: router.PostSeries,
+		},
+		{
+			Name: "Delete episode from watchlist",
+			Method: "DELETE",
+			Pattern: "/v2/tvshow/series",
+			HandlerFunc: router.DeleteSeries,
+		},
+		{
+			Name: "Get watchlist",
+			Method: "GET",
+			Pattern: "/v2/tvshow/watchlist",
+			HandlerFunc: router.GetWatchlist,
+		},
 	}
 	router.initRouter()
 	return &router
@@ -83,7 +119,7 @@ func (rt *Router) initRouter() {
 		w.WriteHeader(http.StatusNotFound)
 	})
 
-	rt.Router.Use(mux.CORSMethodMiddleware(rt.Router))
+	//rt.Router.Use(mux.CORSMethodMiddleware(rt.Router))
 }
 
 func (rt *Router) addRoute(route Route) {
@@ -97,9 +133,9 @@ func (rt *Router) addRoute(route Route) {
 		Name(route.Name).
 		Handler(handler)
 
-	rt.Router.HandleFunc(route.Pattern, func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "*")
-		w.Header().Set("Access-Control-Allow-Headers", "*")
-	}).Methods(http.MethodOptions)
+	//rt.Router.HandleFunc(route.Pattern, func(w http.ResponseWriter, r *http.Request) {
+	//	w.Header().Set("Access-Control-Allow-Origin", "*")
+	//	w.Header().Set("Access-Control-Allow-Methods", "*")
+	//	w.Header().Set("Access-Control-Allow-Headers", "*")
+	//}).Methods(http.MethodOptions)
 }

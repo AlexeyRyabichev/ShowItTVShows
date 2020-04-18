@@ -122,6 +122,7 @@ func (rt *Router) PostSeries(w http.ResponseWriter, r *http.Request) {
 		Password string   `json:"password"`
 		TVShowId string   `json:"tv_show_id"`
 		SeriesId []string `json:"series_id"`
+		Full     bool     `json:"full"`
 	}
 	var req JsonReq
 
@@ -152,6 +153,9 @@ func (rt *Router) PostSeries(w http.ResponseWriter, r *http.Request) {
 	watchlist[req.TVShowId] = Local2TVShow(*local)
 
 	watchlist[req.TVShowId].Unseen = true
+	if req.Full {
+		watchlist[req.TVShowId].Seen = true
+	}
 	if UpdateWatchlist(req.Login, &watchlist) != true {
 		log.Printf("RESP\tPOST EPISODE\tcannot update watchlist in db")
 		w.WriteHeader(http.StatusInternalServerError)
