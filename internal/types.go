@@ -18,7 +18,7 @@ type WatchlistResponse struct {
 	UnseenTVShows []string `json:"unseen_tv_shows"`
 }
 
-type Watchlist []TVShow
+type Watchlist map[string]*TVShow
 
 type TVShow struct {
 	TVShowID string    `json:"tv_show_id"`
@@ -43,5 +43,19 @@ func DB2Watchlist(db *WatchlistDB) Watchlist {
 	if err := json.Unmarshal([]byte(db.Watchlist), &watchlist); err != nil {
 		return nil
 	}
+
+	//watchlist := make(Watchlist)
+	//for _, tvshow := range watchlistArr {
+	//	watchlist[tvshow.TVShowID] = &tvshow
+	//}
 	return watchlist
+}
+
+func Watchlist2DB(watchlist *Watchlist) (WatchlistDB, error) {
+	js, err := json.Marshal(watchlist)
+	if err != nil {
+		return WatchlistDB{}, err
+	}
+
+	return WatchlistDB{Watchlist: string(js)}, nil
 }
