@@ -101,6 +101,7 @@ func (rt *Router) DeleteTVShow(w http.ResponseWriter, r *http.Request) {
 
 	if seen {
 		show.Seen = false
+		show.Series = []Episode{}
 	}
 	if unseen {
 		show.Unseen = false
@@ -150,7 +151,7 @@ func (rt *Router) PostSeries(w http.ResponseWriter, r *http.Request) {
 
 	local := TVShow2Local(watchlist[req.TVShowId])
 	for _, episodeId := range req.SeriesId {
-		local.Episodes[episodeId] = &Episode{
+		local.Episodes[episodeId] = Episode{
 			SeriesID: episodeId,
 			Seen:     true,
 		}
@@ -168,6 +169,49 @@ func (rt *Router) PostSeries(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rt *Router) DeleteSeries(w http.ResponseWriter, r *http.Request) {
+	type JsonReq struct {
+		Login    string   `json:"login"`
+		Password string   `json:"password"`
+		TVShowId string   `json:"tv_show_id"`
+		SeriesId []string `json:"series_id"`
+	}
+	var req JsonReq
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Printf("ERR\t%v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	watchlist := GetWatchlist(req.Login)
+	if watchlist[req.TVShowId] == nil {
+		watchlist[req.TVShowId] = &TVShow{
+			TVShowID: req.TVShowId,
+			Seen:     false,
+			Unseen:   false,
+			Series:   []Episode{},
+		}
+	}
+
+	local := TVShow2Local(watchlist[req.TVShowId])
+
+	for _, episodeId := range req.SeriesId {
+		if _, ok := local.Episodes[episodeId]; ok {
+			delete(local.Episodes, episodeId)
+		}
+	}
+
+	watchlist[req.TVShowId] = Local2TVShow(*local)
+	if len(local.Episodes) == 0 {
+		watchlist[req.TVShowId].Seen = false
+	}
+
+	if UpdateWatchlist(req.Login, &watchlist) != true {
+		log.Printf("RESP\tDELETE EPISODE\tcannot update watchlist in db")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	w.WriteHeader(http.StatusOK)
 }
 

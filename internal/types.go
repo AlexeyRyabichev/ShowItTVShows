@@ -36,7 +36,7 @@ type TVShowLocal struct {
 	TVShowID string `json:"tv_show_id"`
 	Seen     bool
 	Unseen   bool
-	Episodes map[string]*Episode
+	Episodes map[string]Episode
 }
 
 func TVShow2Local(show *TVShow) *TVShowLocal {
@@ -44,12 +44,12 @@ func TVShow2Local(show *TVShow) *TVShowLocal {
 		TVShowID: show.TVShowID,
 		Seen:     show.Seen,
 		Unseen:   show.Unseen,
-		Episodes: make(map[string]*Episode),
+		Episodes: make(map[string]Episode),
 	}
 
 	for _, episode := range show.Series {
-		if local.Episodes[episode.SeriesID] == nil {
-			local.Episodes[episode.SeriesID] = &episode
+		if _, ok := local.Episodes[episode.SeriesID]; !ok {
+			local.Episodes[episode.SeriesID] = episode
 		}
 	}
 
@@ -65,7 +65,7 @@ func Local2TVShow(local TVShowLocal) *TVShow {
 	}
 
 	for _, episode := range local.Episodes {
-		show.Series = append(show.Series, *episode)
+		show.Series = append(show.Series, episode)
 	}
 
 	return &show
