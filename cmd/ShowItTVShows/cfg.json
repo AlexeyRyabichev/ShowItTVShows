@@ -16,16 +16,6 @@
       "path": "/"
     },
     {
-      "name": "Add season to watchlist",
-      "method": "POST",
-      "path": "/season"
-    },
-    {
-      "name": "Delete season from watchlist",
-      "method": "DELETE",
-      "path": "/season"
-    },
-    {
       "name": "Add episode to watchlist",
       "method": "POST",
       "path": "/series"

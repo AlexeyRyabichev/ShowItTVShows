@@ -45,18 +45,6 @@ func NewRouter(cfg ShowItGate.NodeCfg) *Router {
 			HandlerFunc: router.DeleteTVShow,
 		},
 		{
-			Name: "Add season to watchlist",
-			Method: "POST",
-			Pattern: "/v1/tvshow/season",
-			HandlerFunc: router.PostSeason,
-		},
-		{
-			Name: "Delete season from watchlist",
-			Method: "DELETE",
-			Pattern: "/v1/tvshow/season",
-			HandlerFunc: router.DeleteSeason,
-		},
-		{
 			Name: "Add episode to watchlist",
 			Method: "POST",
 			Pattern: "/v1/tvshow/series",
@@ -72,6 +60,42 @@ func NewRouter(cfg ShowItGate.NodeCfg) *Router {
 			Name: "Get watchlist",
 			Method: "GET",
 			Pattern: "/v1/tvshow/watchlist",
+			HandlerFunc: router.GetWatchlist,
+		},
+		{
+			Name: "Get TV Show info",
+			Method: "GET",
+			Pattern: "/v2/tvshow/",
+			HandlerFunc: router.GetTVShow,
+		},
+		{
+			Name: "Update TV Show info in watchlist",
+			Method: "POST",
+			Pattern: "/v2/tvshow/",
+			HandlerFunc: router.PostTVShow,
+		},
+		{
+			Name: "Delete TV Show from watchlist",
+			Method: "DELETE",
+			Pattern: "/v2/tvshow/",
+			HandlerFunc: router.DeleteTVShow,
+		},
+		{
+			Name: "Add episode to watchlist",
+			Method: "POST",
+			Pattern: "/v2/tvshow/series",
+			HandlerFunc: router.PostSeries,
+		},
+		{
+			Name: "Delete episode from watchlist",
+			Method: "DELETE",
+			Pattern: "/v2/tvshow/series",
+			HandlerFunc: router.DeleteSeries,
+		},
+		{
+			Name: "Get watchlist",
+			Method: "GET",
+			Pattern: "/v2/tvshow/watchlist",
 			HandlerFunc: router.GetWatchlist,
 		},
 	}
@@ -94,6 +118,8 @@ func (rt *Router) initRouter() {
 		)
 		w.WriteHeader(http.StatusNotFound)
 	})
+
+	//rt.Router.Use(mux.CORSMethodMiddleware(rt.Router))
 }
 
 func (rt *Router) addRoute(route Route) {
@@ -106,4 +132,10 @@ func (rt *Router) addRoute(route Route) {
 		Path(route.Pattern).
 		Name(route.Name).
 		Handler(handler)
+
+	//rt.Router.HandleFunc(route.Pattern, func(w http.ResponseWriter, r *http.Request) {
+	//	w.Header().Set("Access-Control-Allow-Origin", "*")
+	//	w.Header().Set("Access-Control-Allow-Methods", "*")
+	//	w.Header().Set("Access-Control-Allow-Headers", "*")
+	//}).Methods(http.MethodOptions)
 }
